@@ -6,7 +6,8 @@ local conf = require("telescope.config").values
 local entry_display = require("telescope.pickers.entry_display")
 local Job = require("plenary.job")
 
-local get_pipelines = function()
+local Azure = {}
+Azure.get_pipelines = function()
     local job = Job:new({
         command = "az",
         args = { "pipelines", "list", "--output", "json" },
@@ -18,7 +19,8 @@ local get_pipelines = function()
     return json
 end
 
-local pipeline_picker = function(opts, pipelines_tbl)
+local M = {}
+M.pipeline_picker = function(opts, pipelines_tbl)
     opts = opts or {}
     pickers
         .new(opts, {
@@ -64,4 +66,4 @@ local pipeline_picker = function(opts, pipelines_tbl)
         :find()
 end
 
-pipeline_picker({}, get_pipelines())
+M.pipeline_picker({}, Azure.get_pipelines())
