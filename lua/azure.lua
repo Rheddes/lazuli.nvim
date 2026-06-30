@@ -1,24 +1,12 @@
 local Job = require("plenary.job")
-
-local cwd = "some_dir"
-
-local Git = {}
-Git.get_current_branch = function()
-    local branch_job = Job:new({
-        command = "git",
-        args = { "rev-parse", "--abbrev-ref", "HEAD" },
-        cwd = cwd,
-    })
-    branch_job:sync()
-    return  branch_job:result()[1]
-end
+local Git = require("git")
 
 local Azure = {}
 Azure.get_pipelines = function()
     local job = Job:new({
         command = "az",
         args = { "pipelines", "list", "--output", "json" },
-        cwd = cwd,
+        cwd = vim.fn.getcwd(),
     })
     job:sync()
     local output = table.concat(job:result(), "\n")
@@ -29,11 +17,12 @@ Azure.start_pipeline = function(pipeline)
     local job = Job:new({
         command = "az",
         args = { "pipelines", "run", "--output", "json", "--id", pipeline.id, "--branch", Git.get_current_branch() },
-        cwd = cwd,
+        cwd = vim.fn.getcwd(),
     })
     job:sync()
     local output = table.concat(job:result(), "\n")
-    local json = vim.json.decode(output)
-    print(vim.inspect(json))
+    -- local json = vim.json.decode(output)
+    -- print(vim.inspect(json))
+    print("Started pipeline: " .. pipeline.id)
 end
-
+return Azure
